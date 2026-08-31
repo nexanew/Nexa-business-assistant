@@ -19,16 +19,120 @@
 
   <!-- ============ TOP BAR ============ -->
   <header class="topbar">
-    <div class="brand">
-      <span class="brand-mark" aria-hidden="true">N</span>
-      <div class="brand-text">
-        <span class="brand-name">NBA</span>
-        <span class="brand-sub">Nexa Business Assistant</span>
+    <div class="topbar-inner">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">N</span>
+        <div class="brand-text">
+          <span class="brand-name">NBA</span>
+          <span class="brand-sub">Nexa Business Assistant</span>
+        </div>
+      </div>
+
+      <!-- ============ ACCOUNT BADGE (shown only when signed in) ============ -->
+      <div class="topbar-account" id="topbarAccount" hidden>
+        <div class="account-info">
+          <span class="account-name" id="accountName">—</span>
+          <span class="account-email" id="accountEmail">—</span>
+        </div>
+        <button type="button" class="btn-logout" id="logoutBtn">Logout</button>
       </div>
     </div>
   </header>
 
-  <main class="layout" id="setupView">
+  <!-- ============ SESSION CHECK SPLASH ============ -->
+  <!-- Shown briefly while Firebase determines whether a session already exists,
+       so we don't flash the login screen at already-signed-in users. -->
+  <div class="auth-loading" id="authLoadingView">
+    <p>Loading NBA…</p>
+  </div>
+
+  <!-- ============ AUTH VIEW (Login / Create Account / Forgot Password) ============ -->
+  <main class="auth-view" id="authView" hidden>
+    <div class="auth-card">
+
+      <!-- LOGIN PANEL -->
+      <div class="auth-panel" id="loginPanel">
+        <h1 class="auth-title">Welcome back</h1>
+        <p class="auth-subtitle">Log in to your NBA account.</p>
+        <span class="form-error-summary" id="loginFormError" hidden></span>
+        <form id="loginForm" novalidate>
+          <div class="field">
+            <label for="loginEmail">Email</label>
+            <input type="email" id="loginEmail" name="loginEmail" placeholder="e.g. chidi@email.com" autocomplete="email" aria-describedby="err-loginEmail" />
+            <span class="field-error" id="err-loginEmail" aria-live="polite"></span>
+          </div>
+          <div class="field">
+            <label for="loginPassword">Password</label>
+            <input type="password" id="loginPassword" name="loginPassword" autocomplete="current-password" aria-describedby="err-loginPassword" />
+            <span class="field-error" id="err-loginPassword" aria-live="polite"></span>
+          </div>
+          <button type="submit" class="btn-primary" id="loginBtn">Login</button>
+        </form>
+        <div class="auth-links">
+          <button type="button" class="link-btn" id="showForgotPasswordBtn">Forgot password?</button>
+        </div>
+        <div class="auth-switch">
+          <span>New to NBA?</span>
+          <button type="button" class="btn-secondary" id="showCreateAccountBtn">Create Account</button>
+        </div>
+      </div>
+
+      <!-- CREATE ACCOUNT PANEL -->
+      <div class="auth-panel" id="createAccountPanel" hidden>
+        <h1 class="auth-title">Create your account</h1>
+        <p class="auth-subtitle">Set up your NBA login. Your business details come next.</p>
+        <span class="form-error-summary" id="createAccountFormError" hidden></span>
+        <form id="createAccountForm" novalidate>
+          <div class="field">
+            <label for="createFullName">Full name</label>
+            <input type="text" id="createFullName" name="createFullName" placeholder="e.g. Chidi Okafor" autocomplete="name" aria-describedby="err-createFullName" />
+            <span class="field-error" id="err-createFullName" aria-live="polite"></span>
+          </div>
+          <div class="field">
+            <label for="createEmail">Email</label>
+            <input type="email" id="createEmail" name="createEmail" placeholder="e.g. chidi@email.com" autocomplete="email" aria-describedby="err-createEmail" />
+            <span class="field-error" id="err-createEmail" aria-live="polite"></span>
+          </div>
+          <div class="field">
+            <label for="createPassword">Password</label>
+            <input type="password" id="createPassword" name="createPassword" autocomplete="new-password" aria-describedby="err-createPassword" />
+            <span class="field-error" id="err-createPassword" aria-live="polite"></span>
+          </div>
+          <div class="field">
+            <label for="createConfirmPassword">Confirm password</label>
+            <input type="password" id="createConfirmPassword" name="createConfirmPassword" autocomplete="new-password" aria-describedby="err-createConfirmPassword" />
+            <span class="field-error" id="err-createConfirmPassword" aria-live="polite"></span>
+          </div>
+          <button type="submit" class="btn-primary" id="createAccountBtn">Create Account</button>
+        </form>
+        <div class="auth-switch">
+          <button type="button" class="btn-secondary" id="backToLoginFromCreateBtn">Back to Login</button>
+        </div>
+      </div>
+
+      <!-- FORGOT PASSWORD PANEL -->
+      <div class="auth-panel" id="forgotPasswordPanel" hidden>
+        <h1 class="auth-title">Reset your password</h1>
+        <p class="auth-subtitle">Enter your account email and we'll send you a reset link.</p>
+        <span class="form-error-summary" id="forgotPasswordFormError" hidden></span>
+        <p class="auth-success-message" id="forgotPasswordSuccess" hidden></p>
+        <form id="forgotPasswordForm" novalidate>
+          <div class="field">
+            <label for="forgotEmail">Email</label>
+            <input type="email" id="forgotEmail" name="forgotEmail" placeholder="e.g. chidi@email.com" autocomplete="email" aria-describedby="err-forgotEmail" />
+            <span class="field-error" id="err-forgotEmail" aria-live="polite"></span>
+          </div>
+          <button type="submit" class="btn-primary" id="forgotPasswordBtn">Send Reset Email</button>
+        </form>
+        <div class="auth-switch">
+          <button type="button" class="btn-secondary" id="backToLoginFromForgotBtn">Back to Login</button>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <main class="layout" id="setupView" hidden>
 
     <div class="intro">
       <p class="eyebrow">Business setup</p>
@@ -1708,6 +1812,10 @@
   </div>
 </div>
 
+<!-- Firebase Authentication (compat build — plain <script> tags, no bundler/module system needed) -->
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
+<script src="firebase-config.js"></script>
 <script src="script.js"></script>
 </body>
 </html>
